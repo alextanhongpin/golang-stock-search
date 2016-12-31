@@ -1,0 +1,92 @@
+{{define "head"}}<title>Stock Search</title>{{end}}
+{{define "body"}}
+	
+	<h1>Stock Search</h1>
+
+	<input type="search" name="search">
+	<table>
+	<tbody id='main'></tbody>
+	</table>
+	<script type="text/javascript">
+		
+		"use strict"
+
+		const search = document.querySelector('input[name=search]')
+		const main = document.getElementById('main')
+
+
+		let timeout = null
+		search.addEventListener('change', (evt) => {
+
+			if (timeout) {
+				window.clearTimeout(timeout)
+			}
+			timeout = window.setTimeout(() => {
+				const stocks = evt.target.value
+
+				if (stocks.trim().length) {
+					fetchStocks(stocks.toUpperCase())
+				}
+			}, 500)
+
+		}, false)
+
+		function fetchStocks (stocks) {
+
+			const request = fetch("/stocks?tickers_symbol=" + stocks, {
+				headers: {
+					ContentType: "application/json"
+				},
+				method: "GET"
+			})
+
+			const response = request.then((body) => {
+				return body.json()
+			}).then((data) => {
+				const parsed = data.map((stock) => {
+					console.log(stock)
+					return Object.keys(stock).map((key) => {
+						return {
+							label: mapKeyToLabel(key),
+							value: stock[key]
+						}
+					})
+				})
+				const htmlString = parsed.map((stock) => {
+					// Render View
+					return stock.map((data) => {
+						return `<tr>
+							<td>${data.label}:</td>
+							<td>${data.value}</td>
+						</tr>`
+					}).join(' ')
+				}).join(' ')
+				main.innerHTML = htmlString
+			})
+
+
+		}
+
+		function mapKeyToLabel (key) {
+			const mapper = {
+				't': 'Symbol',
+				'e': 'Exchange',
+				'name': 'Name',
+				'c': 'Change',
+				'l': 'Close',
+				'cp': 'Percentage Close',
+				'op': 'Open',
+				'hi': 'High',
+				'lo': 'Low',
+				'vo': 'Volume',
+				'avvo': 'Average Volume',
+				'hi52': 'High 52',
+				'lo52': 'Low 52',
+				'mc': 'Market Cap',
+				'eps': 'EPS',
+				'shares': 'Shares'
+			}
+			return mapper[key]
+		}
+	</script>
+{{end}}
