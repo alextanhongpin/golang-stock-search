@@ -1,2 +1,5 @@
-# golang-stock-search
-A simple stock searching app made with go-kit while learning microservices with golang :)
+# Go-kit Stock Search
+
+A simple app made with go-kit while learning microservices with golang.
+
+:)
